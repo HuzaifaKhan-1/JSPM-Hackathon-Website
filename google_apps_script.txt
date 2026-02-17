@@ -1,0 +1,90 @@
+/**
+ * Google Apps Script Backend for IIC 2K26 Registration
+ * 
+ * Features:
+ * - Stores form data in Google Sheets
+ * - Uploads Base64 images to Google Drive
+ * - Auto-generates timestamps and status
+ */
+
+const SHEET_NAME = 'Registrations';
+const DRIVE_FOLDER_ID = 'YOUR_DRIVE_FOLDER_ID_HERE'; // User needs to replace this
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME) || SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEET_NAME);
+    
+    // Set headers if new sheet
+    if (sheet.getLastRow() === 0) {
+      const headers = [
+        'Timestamp', 'Team Name', 'Institution', 'Country', 'State', 'PIN', 
+        'Team Leader Name', 'Leader Email', 'Leader Phone', 'Team Size',
+        'Member 2 Name', 'Member 2 Email', 'Member 3 Name', 'Member 3 Email', 
+        'Member 4 Name', 'Member 4 Email', 'Innovation Track', 'Project Title', 
+        'Project Description', 'GitHub Link', 'Transaction ID', 'Screenshot Drive Link', 'Approval Status'
+      ];
+      sheet.appendRow(headers);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#f3f3f3');
+    }
+
+    // Handle File Upload to Drive
+    let fileUrl = "No Screenshot";
+    if (data.screenshot && data.screenshot.base64) {
+      const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+      const contentType = data.screenshot.type || 'image/png';
+      const fileName = `Payment_${data.teamName.replace(/\s+/g, '_')}_${Date.now()}`;
+      const decodedData = Utilities.base64Decode(data.screenshot.base64.split(',')[1]);
+      const blob = Utilities.newBlob(decodedData, contentType, fileName);
+      const file = folder.createFile(blob);
+      fileUrl = file.getUrl();
+    }
+
+    // Prepare Row Data
+    const row = [
+      new Date(),
+      data.teamName,
+      data.college,
+      data.country,
+      data.state,
+      data.pin,
+      data.leaderName,
+      data.leaderEmail,
+      data.leaderPhone,
+      data.teamSize || (data.m2Name ? (data.m3Name ? (data.m4Name ? 4 : 3) : 2) : 1),
+      data.m2Name || '-',
+      data.m2Email || '-',
+      data.m3Name || '-',
+      data.m3Email || '-',
+      data.m4Name || '-',
+      data.m4Email || '-',
+      data.track,
+      data.projectTitle,
+      data.projectDesc,
+      data.githubLink || '-',
+      data.transactionId,
+      fileUrl,
+      'Pending'
+    ];
+
+    sheet.appendRow(row);
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'Registration recorded successfully',
+      fileUrl: fileUrl
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Enable CORS
+function doOptions(e) {
+  return ContentService.createTextOutput("")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
