@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Portal | IIC 2K26</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="logo.jpeg">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#050505',
+                        'navy-dark': '#000814',
+                        'neon-blue': '#00d4ff',
+                        'neon-purple': '#9b5de5',
+                        'accent-yellow': '#eab308',
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sidebar {
+            width: 300px;
+            background: #000814;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .sidebar-link:hover {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            border-color: rgba(0, 212, 255, 0.1);
+        }
+
+        .sidebar-link.active {
+            background: #eab308;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+        }
+
+        .main-content {
+            margin-left: 300px;
+            min-height: 100vh;
+            padding: 2.5rem;
+            background: #050505;
+            position: relative;
+        }
+
+        .content-view.hidden {
+            display: none;
+        }
+
+        .portal-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .portal-card:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input,
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 1rem !important;
+            padding: 1rem 1.5rem !important;
+            outline: none !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) !important;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="font-inter text-white bg-dark">
+    <div class="fixed inset-0 grid-bg opacity-20 pointer-events-none"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar p-8">
+        <div class="flex items-center gap-4 mb-12 px-2">
+            <img src="logo.jpeg" alt="Logo"
+                class="w-12 h-12 rounded-xl border border-white/10 shadow-lg shadow-neon-blue/20">
+            <div class="flex flex-col">
+                <span class="font-orbitron font-black text-xl tracking-tighter text-white uppercase">IIC 2K26</span>
+                <span class="text-[9px] uppercase tracking-[0.3em] text-neon-blue font-bold">Team Portal</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div class="sidebar-link active" data-view="dashboard"><i data-lucide="layout-dashboard"
+                    class="w-5 h-5"></i>Team Status</div>
+            <div class="sidebar-link" data-view="idea"><i data-lucide="lightbulb" class="w-5 h-5"></i>Submit Idea</div>
+            <div class="sidebar-link" data-view="members"><i data-lucide="users" class="w-5 h-5"></i>Team Members</div>
+            <div class="sidebar-link" data-view="notices"><i data-lucide="bell" class="w-5 h-5"></i>Notices</div>
+        </nav>
+
+        <div class="mt-8 pt-6 border-t border-white/5">
+            <button onclick="window.location.href='login.html'"
+                class="w-full bg-accent-yellow text-dark font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg shadow-yellow-500/20 active:scale-95">
+                <i data-lucide="log-out" class="w-5 h-5"></i>LOGOUT
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12 glass p-6 border-white/5 rounded-[2rem]">
+            <div class="flex flex-col">
+                <h2 class="text-3xl font-orbitron font-black text-white uppercase tracking-tight" id="section-title">
+                    Team Status</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-neon-blue animate-pulse"></span>
+                    <p class="text-neon-blue text-[11px] font-bold uppercase tracking-[0.2em]" id="section-subtitle">
+                        Innovation Journey Tracking</p>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center gap-5 px-6 py-3 bg-white/5 border border-white/10 rounded-[2rem] hover:border-neon-blue/30 transition-all group">
+                <div class="flex flex-col text-right">
+                    <span class="text-xs font-black text-white group-hover:text-neon-blue transition-colors">Team Leader
+                        Name</span>
+                    <span class="text-[9px] text-white/40 font-bold uppercase tracking-widest">Team ID:
+                        IIC26-XXXX</span>
+                </div>
+                <div
+                    class="w-12 h-12 bg-gradient-to-br from-neon-blue to-neon-purple rounded-2xl flex items-center justify-center text-white shadow-lg overflow-hidden relative">
+                    <div class="absolute inset-0 bg-black/10"></div>
+                    <i data-lucide="rocket" class="w-6 h-6 relative z-10"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="content-view space-y-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Registration Status -->
+                <div class="portal-card border-none bg-white/[0.02] flex items-center gap-6">
+                    <div
+                        class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 border border-green-500/20">
+                        <i data-lucide="file-check" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Registration</span>
+                        <h4 class="text-xl font-bold">VERIFIED</h4>
+                        <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">Completion
+                            100%</span>
+                    </div>
+                </div>
+                <!-- Idea Submission Status -->
+                <div class="portal-card border-none bg-white/[0.02] flex items-center gap-6">
+                    <div
+                        class="w-16 h-16 bg-yellow-400/10 rounded-2xl flex items-center justify-center text-yellow-500 border border-yellow-400/20">
+                        <i data-lucide="lightbulb" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Idea
+                            Submission</span>
+                        <h4 class="text-xl font-bold">PENDING</h4>
+                        <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1">Action
+                            Required</span>
+                    </div>
+                </div>
+                <!-- Evaluation Status -->
+                <div class="portal-card border-none bg-white/[0.02] flex items-center gap-6">
+                    <div
+                        class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 border border-white/10">
+                        <i data-lucide="award" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Evaluation</span>
+                        <h4 class="text-xl font-bold opacity-30">AWAITING</h4>
+                        <span class="text-[10px] text-white/20 font-bold uppercase tracking-widest mt-1 text-sm">NOT
+                            STARTED</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="portal-card border-none bg-white/[0.02] p-10">
+                <h3 class="text-xl font-orbitron font-black text-white uppercase italic mb-8 flex items-center gap-3">
+                    <i data-lucide="user" class="w-6 h-6 text-neon-blue"></i>
+                    Leadership Overview
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Leader
+                                Name</span>
+                            <span class="font-bold">Team Leader Name</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Primary
+                                Email</span>
+                            <span class="font-bold">leader@example.com</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Contact
+                                Phone</span>
+                            <span class="font-bold">+91 XXXXXXXXXX</span>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Innovation
+                                Theme</span>
+                            <span class="font-bold">IOT & Automation</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span
+                                class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Institution</span>
+                            <span class="font-bold text-right">JSPM Global Engineering College</span>
+                        </div>
+                        <div class="flex justify-between border-b border-white/5 pb-4">
+                            <span class="text-white/40 font-bold uppercase text-[10px] tracking-widest">Team Size</span>
+                            <span class="font-bold">4 Members</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IDEA SUBMISSION VIEW -->
+        <div id="view-idea" class="content-view hidden max-w-4xl mx-auto space-y-10">
+            <div class="portal-card p-12 border-neon-blue/20 bg-neon-blue/[0.02]">
+                <div class="text-center mb-12 space-y-4">
+                    <div
+                        class="inline-flex p-4 rounded-3xl bg-neon-blue/10 text-neon-blue border border-neon-blue/20 mb-4">
+                        <i data-lucide="lightbulb" class="w-10 h-10"></i></div>
+                    <h3 class="text-3xl font-orbitron font-black text-white italic tracking-tighter uppercase">
+                        Techno-Concept Submission</h3>
+                    <p class="text-white/40 text-sm font-medium">Transmit your innovation abstract for expert
+                        evaluation.</p>
+                </div>
+
+                <form class="space-y-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-4">Project
+                            Title</label>
+                        <input type="text" placeholder="Enter concise and impactful project name">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-4">Abstract (Max
+                            500 words)</label>
+                        <textarea class="w-full h-48"
+                            placeholder="Describe the problem statement, proposed solution, and technology stack..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-4">PPT Link
+                                (Drive/Dropbox)</label>
+                            <input type="url" placeholder="https://drive.google.com/...">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest ml-4">Product
+                                Video Link (Optional)</label>
+                            <input type="url" placeholder="https://youtube.com/...">
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-neon-blue text-dark font-black py-5 rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-neon-blue/30 text-lg uppercase tracking-widest active:scale-95">
+                        Submit Abstract
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MEMBERS VIEW -->
+        <div id="view-members" class="content-view hidden">
+            <div class="portal-card p-0 border-none bg-white/[0.02] overflow-hidden">
+                <div class="p-8 border-b border-white/5 flex items-center justify-between">
+                    <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Official Team Roster
+                    </h3>
+                    <button
+                        class="px-4 py-2 border border-white/10 rounded-xl text-[10px] font-black uppercase text-white/40 hover:text-white transition-all">Request
+                        Member Change</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-white/[0.03] text-white/30 text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/5">
+                                <th class="px-8 py-5">Role</th>
+                                <th class="px-8 py-5">Member Name</th>
+                                <th class="px-8 py-5">Identity (Email)</th>
+                                <th class="px-8 py-5 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="border-b border-white/5 hover:bg-white/[0.04]">
+                                <td class="px-8 py-6"><span
+                                        class="px-3 py-1 bg-neon-blue/10 text-neon-blue text-[9px] font-black uppercase tracking-widest border border-neon-blue/20 rounded-md">Team
+                                        Leader</span></td>
+                                <td class="px-8 py-6 font-bold text-white">Chavan Shriraj Santosh</td>
+                                <td class="px-8 py-6 text-white/60">shriraj@example.com</td>
+                                <td class="px-8 py-6 text-center"><span
+                                        class="status-badge bg-green-500/10 text-green-500 border border-green-500/10">Active</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTICES VIEW -->
+        <div id="view-notices" class="content-view hidden space-y-8">
+            <div class="portal-card py-32 text-center bg-white/[0.01]">
+                <div class="flex flex-col items-center gap-6 opacity-20">
+                    <i data-lucide="bell" class="w-20 h-20 text-white"></i>
+                    <p class="text-lg font-black uppercase tracking-[0.4em] text-white">No active announcements</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        function showView(viewId) {
+            document.querySelectorAll('.content-view').forEach(v => v.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.classList.remove('active');
+                if (l.dataset.view === viewId) l.classList.add('active');
+            });
+
+            const titles = {
+                'dashboard': ['Team Status', 'Innovation Journey Tracking'],
+                'idea': ['Submit Innovation', 'Transmission of Techno-Abstract'],
+                'members': ['Team Roster', 'Official Identity Management'],
+                'notices': ['Announcements', 'Global Innovation Feed']
+            };
+
+            if (titles[viewId]) {
+                document.getElementById('section-title').innerText = titles[viewId][0];
+                document.getElementById('section-subtitle').innerText = titles[viewId][1];
+            }
+            window.scrollTo(0, 0);
+        }
+
+        document.querySelectorAll('.sidebar-link').forEach(l => {
+            l.onclick = () => showView(l.dataset.view);
+        });
+    </script>
+</body>
+
+</html>

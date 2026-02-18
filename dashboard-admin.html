@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovation Portal | IIC 2K26</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="logo.jpeg">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#050505',
+                        'navy-dark': '#000814',
+                        'neon-blue': '#00d4ff',
+                        'neon-purple': '#9b5de5',
+                        'accent-yellow': '#eab308',
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sidebar {
+            width: 300px;
+            background: #000814;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .sidebar-link:hover {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            border-color: rgba(0, 212, 255, 0.1);
+        }
+
+        .sidebar-link.active {
+            background: #eab308;
+            color: #050505;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+        }
+
+        .main-content {
+            margin-left: 300px;
+            min-height: 100vh;
+            padding: 2.5rem;
+            background: #050505;
+            position: relative;
+        }
+
+        .content-view.hidden {
+            display: none;
+        }
+
+        .portal-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .portal-card:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input,
+        select,
+        textarea {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 1rem !important;
+            padding: 1rem 1.5rem !important;
+            outline: none !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2) !important;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .theme-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-checkbox:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-checkbox input:checked+.box {
+            background: #00d4ff;
+            border-color: #00d4ff;
+        }
+
+        .theme-checkbox input:checked+.box i {
+            display: block;
+        }
+
+        .box {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .box i {
+            display: none;
+            color: #050505;
+            font-size: 0.75rem;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="font-inter text-white bg-dark">
+    <div class="fixed inset-0 grid-bg opacity-20 pointer-events-none"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar p-8">
+        <div class="flex items-center gap-4 mb-12 px-2">
+            <img src="logo.jpeg" alt="Logo"
+                class="w-12 h-12 rounded-xl border border-white/10 shadow-lg shadow-neon-blue/20">
+            <div class="flex flex-col">
+                <span class="font-orbitron font-black text-xl tracking-tighter text-white uppercase">IIC 2K26</span>
+                <span class="text-[9px] uppercase tracking-[0.3em] text-neon-blue font-bold">Innovation Panel</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div class="sidebar-link active" data-view="dashboard"><i data-lucide="layout-dashboard"
+                    class="w-5 h-5"></i>Dashboard</div>
+            <div class="sidebar-link" data-view="registrations"><i data-lucide="file-text" class="w-5 h-5"></i>Teams
+                Registration</div>
+            <div class="sidebar-link" data-view="teams"><i data-lucide="users" class="w-5 h-5"></i>Teams Allocation
+            </div>
+            <div class="sidebar-link" data-view="idea"><i data-lucide="lightbulb" class="w-5 h-5"></i>Idea Submissions
+            </div>
+            <div class="sidebar-link" data-view="evaluators"><i data-lucide="user-plus" class="w-5 h-5"></i>Evaluator
+                Registration</div>
+            <div class="sidebar-link" data-view="assignments"><i data-lucide="user-check" class="w-5 h-5"></i>Evaluator
+                Assignment</div>
+            <div class="sidebar-link" data-view="sh"><i data-lucide="shield-check" class="w-5 h-5"></i>SH Registration
+            </div>
+            <div class="sidebar-link" data-view="notices"><i data-lucide="bell" class="w-5 h-5"></i>Notices</div>
+        </nav>
+
+        <div class="mt-8 pt-6 border-t border-white/5">
+            <button onclick="window.location.href='login.html'"
+                class="w-full bg-accent-yellow text-dark font-black py-4 rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-lg shadow-yellow-500/20 active:scale-95">
+                <i data-lucide="log-out" class="w-5 h-5"></i>LOGOUT
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12 glass p-6 border-white/5 rounded-[2rem]">
+            <div class="flex flex-col">
+                <h2 class="text-3xl font-orbitron font-black text-white uppercase tracking-tight" id="section-title">
+                    Admin Dashboard</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-neon-blue animate-pulse"></span>
+                    <p class="text-neon-blue text-[11px] font-bold uppercase tracking-[0.2em]" id="section-subtitle">
+                        System Overview and Real-time Metrics</p>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center gap-5 px-6 py-3 bg-white/5 border border-white/10 rounded-[2rem] hover:border-neon-blue/30 transition-all group">
+                <div class="flex flex-col text-right">
+                    <span class="text-xs font-black text-white group-hover:text-neon-blue transition-colors">Admin JSCOE
+                        Waghole Sir</span>
+                    <span class="text-[9px] text-white/40 font-bold uppercase tracking-widest">Master
+                        Administrator</span>
+                </div>
+                <div
+                    class="w-12 h-12 bg-gradient-to-br from-neon-blue to-neon-purple rounded-2xl flex items-center justify-center text-white shadow-lg overflow-hidden relative">
+                    <div class="absolute inset-0 bg-black/10"></div>
+                    <i data-lucide="user" class="w-6 h-6 relative z-10"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="content-view space-y-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                <div class="portal-card relative overflow-hidden group p-6">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Teams</span>
+                        <div class="p-2 bg-neon-blue/10 rounded-lg text-neon-blue"><i data-lucide="users"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-white">0</div>
+                </div>
+                <div class="portal-card relative overflow-hidden group p-6">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Apps</span>
+                        <div class="p-2 bg-neon-purple/10 rounded-lg text-neon-purple"><i data-lucide="file-text"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-white">0</div>
+                </div>
+                <div class="portal-card relative overflow-hidden group p-6 border-orange-500/20">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pending
+                            Review</span>
+                        <div class="p-2 bg-orange-500/10 rounded-lg text-orange-500"><i data-lucide="clock"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-orange-500">0</div>
+                </div>
+                <div class="portal-card relative overflow-hidden group p-6 border-green-500/20">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Selected
+                            Teams</span>
+                        <div class="p-2 bg-green-500/10 rounded-lg text-green-500"><i data-lucide="check-circle"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-green-500">0</div>
+                </div>
+                <div class="portal-card relative overflow-hidden group p-6 border-red-500/20">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Rejected
+                            Teams</span>
+                        <div class="p-2 bg-red-500/10 rounded-lg text-red-500"><i data-lucide="x-circle"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-red-500">0</div>
+                </div>
+                <div class="portal-card relative overflow-hidden group p-6 border-yellow-400/20">
+                    <div class="flex justify-between items-baseline mb-6">
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Active
+                            Evaluators</span>
+                        <div class="p-2 bg-yellow-400/10 rounded-lg text-yellow-400"><i data-lucide="award"
+                                class="w-4 h-4"></i></div>
+                    </div>
+                    <div class="text-4xl font-orbitron font-black text-yellow-400">0</div>
+                </div>
+            </div>
+
+            <div class="portal-card border-none bg-white/[0.02]">
+                <h3 class="flex items-center gap-3 text-lg font-orbitron font-black text-white uppercase italic mb-10">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-neon-blue"></i>Project Status Overview
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="p-10 rounded-[2.5rem] bg-white/5 border border-white/5 flex flex-col items-center">
+                        <div class="text-5xl font-orbitron font-black text-neon-blue mb-2">0</div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Total
+                            Projects</span>
+                    </div>
+                    <div class="p-10 rounded-[2.5rem] bg-white/5 border border-white/5 flex flex-col items-center">
+                        <div class="text-5xl font-orbitron font-black text-yellow-400 mb-2">0</div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Pending
+                            Evaluation</span>
+                    </div>
+                    <div class="p-10 rounded-[2.5rem] bg-white/5 border border-white/5 flex flex-col items-center">
+                        <div class="text-5xl font-orbitron font-black text-green-500 mb-2">0</div>
+                        <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">High Score
+                            (70+)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTRATIONS VIEW -->
+        <div id="view-registrations" class="content-view hidden">
+            <div class="portal-card p-0 border-none bg-white/[0.02] overflow-hidden">
+                <div class="p-8 border-b border-white/5 flex gap-4">
+                    <button
+                        class="px-6 py-3 bg-white text-dark rounded-xl text-xs font-black uppercase tracking-widest">All
+                        Teams</button>
+                    <button
+                        class="px-6 py-3 bg-neon-purple/20 text-neon-purple border border-neon-purple/30 rounded-xl text-xs font-black uppercase tracking-widest">Ready
+                        for Evaluation</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-white/[0.03] text-white/30 text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/5">
+                                <th class="px-8 py-5">Team Name</th>
+                                <th class="px-8 py-5">Leader</th>
+                                <th class="px-8 py-5">Theme</th>
+                                <th class="px-8 py-5">Status</th>
+                                <th class="px-8 py-5 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr>
+                                <td colspan="5" class="px-8 py-32 text-center">
+                                    <div class="flex flex-col items-center gap-4 opacity-30">
+                                        <i data-lucide="inbox" class="w-16 h-16 text-white"></i>
+                                        <p class="text-sm font-black uppercase tracking-[0.5em] text-white">No
+                                            registrations found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEAMS ALLOCATION -->
+        <div id="view-teams" class="content-view hidden space-y-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- No Allocation Cards show by default -->
+            </div>
+
+            <div class="portal-card py-32 text-center bg-white/[0.01]">
+                <div class="flex flex-col items-center gap-6 opacity-20">
+                    <i data-lucide="users" class="w-20 h-20 text-white"></i>
+                    <p class="text-sm font-black uppercase tracking-[0.4em] text-white">No teams allocated yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- IDEA SUBMISSIONS VIEW -->
+        <div id="view-idea" class="content-view hidden">
+            <div class="portal-card py-40 text-center">
+                <div class="flex flex-col items-center gap-6 opacity-30">
+                    <i data-lucide="file-warning" class="w-20 h-20 text-white"></i>
+                    <p class="text-sm font-black uppercase tracking-[0.5em] text-white">No concept abstracts detected in
+                        system</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVALUATOR REGISTRATION VIEW (Approval Panel) -->
+        <div id="view-evaluators" class="content-view hidden space-y-10">
+            <div class="portal-card border-none bg-white/[0.02] p-0 overflow-hidden">
+                <div class="p-10 border-b border-white/5 flex items-center justify-between">
+                    <h3
+                        class="text-3xl font-orbitron font-black text-white uppercase italic tracking-tighter uppercase">
+                        Evaluator Approval Panel</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr
+                                class="bg-white/[0.03] text-white/30 text-[10px] font-black uppercase tracking-[0.2em] border-b border-white/5">
+                                <th class="px-8 py-5">Full Name</th>
+                                <th class="px-8 py-5">Email Address</th>
+                                <th class="px-8 py-5 text-center">Approval Status</th>
+                                <th class="px-8 py-5 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr>
+                                <td colspan="4" class="px-8 py-32 text-center">
+                                    <div class="flex flex-col items-center gap-4 opacity-30">
+                                        <i data-lucide="user-plus" class="w-16 h-16 text-white"></i>
+                                        <p class="text-sm font-black uppercase tracking-[0.5em] text-white">No pending
+                                            evaluator registrations</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVALUATOR ASSIGNMENT VIEW -->
+        <div id="view-assignments" class="content-view hidden space-y-10">
+            <div class="portal-card border-none bg-white/[0.02] p-10 space-y-10">
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-3xl font-orbitron font-black text-white italic tracking-tighter uppercase">Assign
+                        Approved Evaluators To Teams</h3>
+                    <p class="text-white/40 text-sm font-medium">Link certified industry experts to specific innovation
+                        projects.</p>
+                </div>
+
+                <div class="flex justify-between items-center p-6 bg-white/[0.04] rounded-3xl border border-white/5">
+                    <span class="text-xs font-black uppercase tracking-widest text-white/60">Verified Experts (0)</span>
+                    <div class="flex gap-4">
+                        <select class="!py-2 !px-4 !text-[10px] font-black uppercase tracking-widest !w-auto">
+                            <option>Categorical Filter</option>
+                            <option>All Experts</option>
+                        </select>
+                        <select class="!py-2 !px-4 !text-[10px) font-black uppercase tracking-widest !w-auto">
+                            <option>All Sections</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem]">
+                    <div class="flex flex-col items-center gap-6 opacity-20">
+                        <i data-lucide="user-check" class="w-20 h-20 text-white"></i>
+                        <p class="text-lg font-black uppercase tracking-[0.5em] text-white">No approved evaluators
+                            available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SH REGISTRATION VIEW -->
+        <div id="view-sh" class="content-view hidden max-w-5xl mx-auto">
+            <div class="portal-card bg-neon-purple/[0.02] border-neon-purple/20 p-12 space-y-12">
+                <div class="text-center space-y-4">
+                    <div
+                        class="inline-flex p-5 rounded-3xl bg-neon-purple/10 text-neon-purple border border-neon-purple/20 mb-4">
+                        <i data-lucide="shield-plus" class="w-12 h-12"></i>
+                    </div>
+                    <h3 class="text-4xl font-orbitron font-black text-white italic tracking-tighter uppercase">Admin:
+                        Section Head Registration</h3>
+                    <p class="text-white/40 text-base font-medium">Commission a new high-level system supervisor for
+                        domain oversight.</p>
+                </div>
+
+                <form class="space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-4">Access
+                                Tier</label>
+                            <input type="text" value="Section Head / Domain Lead" readonly class="!opacity-50">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-4">Full
+                                Legal Name</label>
+                            <input type="text" placeholder="Dr. Alice Johnson">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-4">Email ID
+                                (System Identity)</label>
+                            <input type="email" placeholder="alice.johnson@innovation.edu">
+                        </div>
+                        <div class="space-y-3">
+                            <label
+                                class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-4">Provisionary
+                                Password</label>
+                            <input type="password" placeholder="Set temporary master password">
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <label class="text-[10px] font-black text-neon-purple uppercase tracking-[0.3em] ml-4">Assign
+                            Supervisory Themes</label>
+                        <div class="checkbox-grid">
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Smart Automation</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Smart Vehicles</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Disaster Management</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Heritage & Culture</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Clean & Green Tech</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">FinTech / Blockchain</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Social Good</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Defense / Security</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">MedTech / BioTech</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Smart Education</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Space Technology</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Tourism & Hospitality</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Robotics & Drones</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Agriculture / Rural</span>
+                            </label>
+                            <label class="theme-checkbox"><input type="checkbox" class="hidden">
+                                <div class="box"><i data-lucide="check"></i></div><span
+                                    class="text-[11px] font-bold uppercase text-white/70">Logistics & Transport</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-neon-purple text-white font-black py-5 rounded-[1.5rem] hover:scale-[1.02] transition-all shadow-xl shadow-neon-purple/30 text-lg uppercase tracking-[0.2em] active:scale-95">Register
+                        Section Head</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- NOTICES VIEW (System Announcements) -->
+        <div id="view-notices" class="content-view hidden space-y-10">
+            <div class="portal-card flex items-center justify-between border-neon-blue/20 bg-neon-blue/[0.01]">
+                <div class="flex items-center gap-8">
+                    <div
+                        class="w-20 h-20 bg-neon-blue/10 rounded-[2rem] flex items-center justify-center text-neon-blue border border-neon-blue/20 shadow-lg shadow-neon-blue/10">
+                        <i data-lucide="megaphone" class="w-10 h-10"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-4xl font-orbitron font-black text-white italic tracking-tighter uppercase">
+                            System Announcements</h3>
+                        <p class="text-white/40 text-base font-medium mt-1">Official broadcast feed for all participants
+                            and administrators.</p>
+                    </div>
+                </div>
+                <button
+                    class="bg-neon-blue text-dark font-black px-10 py-6 rounded-2xl flex items-center gap-3 hover:scale-105 transition-all shadow-xl shadow-neon-blue/20 uppercase tracking-widest text-sm">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>Create Notice
+                </button>
+            </div>
+
+            <div class="space-y-8">
+                <div class="py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.01]">
+                    <div class="flex flex-col items-center gap-6 opacity-20">
+                        <i data-lucide="bell-off" class="w-20 h-20 text-white"></i>
+                        <p class="text-lg font-black uppercase tracking-[0.5em] text-white">No notices posted yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        function showView(viewId) {
+            document.querySelectorAll('.content-view').forEach(v => v.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.classList.remove('active');
+                if (l.dataset.view === viewId) l.classList.add('active');
+            });
+
+            const titles = {
+                'dashboard': ['Innovation Dashboard', 'System Overview and Real-time Metrics'],
+                'registrations': ['Registration Oversight', 'Reviewing Emerging Innovation Teams'],
+                'teams': ['Strategic Allocation', 'Managing Expert-Team Synchronicity'],
+                'idea': ['Concept Phase', 'Reviewing Submitted Project Abstracts'],
+                'evaluators': ['Expert Certification', 'Evaluator Onboarding & Approval Panel'],
+                'assignments': ['Team Assignments', 'Bridging Knowledge and Innovation'],
+                'sh': ['Commissioning Panel', 'Administrative Provision of Section Heads'],
+                'notices': ['Announcement Feed', 'Global System Broadcasts & Feed']
+            };
+
+            if (titles[viewId]) {
+                document.getElementById('section-title').innerText = titles[viewId][0];
+                document.getElementById('section-subtitle').innerText = titles[viewId][1];
+            }
+            window.scrollTo(0, 0);
+        }
+
+        document.querySelectorAll('.sidebar-link').forEach(l => {
+            l.onclick = () => showView(l.dataset.view);
+        });
+    </script>
+</body>
+
+</html>
