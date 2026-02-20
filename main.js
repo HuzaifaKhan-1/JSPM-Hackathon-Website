@@ -106,7 +106,7 @@ modal.addEventListener('click', (e) => {
 });
 
 // Countdown Timer
-const eventDate = new Date('March 28, 2026 09:00:00').getTime();
+const eventDate = new Date('April 4, 2026 09:00:00').getTime();
 const timer = setInterval(() => {
     const now = new Date().getTime();
     const distance = eventDate - now;
@@ -135,28 +135,7 @@ const timer = setInterval(() => {
     }
 }, 1000);
 
-// Prize Pool Counter Animation
-if (typeof gsap !== 'undefined') {
-    // Check if ScrollTrigger is available specifically
-    if (typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-    }
-    const counterEl = document.getElementById('counter');
-    if (counterEl) {
-        const counterObj = { value: 0 };
-        gsap.to(counterObj, {
-            value: 400000,
-            duration: 3,
-            scrollTrigger: {
-                trigger: '#counter',
-                start: 'top 80%',
-            },
-            onUpdate: () => {
-                counterEl.innerText = Math.floor(counterObj.value).toLocaleString();
-            }
-        });
-    }
-}
+
 
 // Cursor Glow Effect
 document.addEventListener('mousemove', (e) => {
